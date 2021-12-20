@@ -25,6 +25,7 @@ from task_0.task_0_0 import SettingsReader
 from task_0.task_0_1 import ParsingConnections
 from task_1.task_1_0 import ConnectionsDuration
 from task_2.task_2_0 import ConnectionsLoad
+from task_3.task_3_0 import Graph
 
 
 if __name__ == '__main__':
@@ -76,6 +77,11 @@ if __name__ == '__main__':
                 report_2_0 = process_task_2_0.start()
                 if dict_settings['messages_2_0'] == 'True':
                     report += report_2_0
+
+            # task_3
+            # Preparing 'Graphs - Active clients'.
+            process_task_3_0 = Graph(dict_settings=dict_settings)
+            process_task_3_0.run()
 
             if report != '':
                 print(report[1:])

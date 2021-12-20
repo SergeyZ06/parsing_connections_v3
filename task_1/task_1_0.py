@@ -24,6 +24,11 @@ class ConnectionsDuration:
         self.report = ''
 
     def start(self):
+        # Check: if month is first, consider the previous SQLite DB.
+        if int(datetime.datetime.now().strftime("%m")) == 1:
+            self.path_db = self.path_db.replace(datetime.datetime.now().strftime("%Y"),
+                                                str(int(datetime.datetime.now().strftime("%Y")) - 1))
+
         # Check: tables "connections" and "clients" should exist.
         db_table_exists_result, db_table_exists_report = db_table_exists(self.path_db, self.path_sql_query_0_0, 2)
         self.report += db_table_exists_report

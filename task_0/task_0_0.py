@@ -89,7 +89,8 @@ class SettingsReader:
                                                              func_current_platform=current_platform,
                                                              func_dir_location=dir_location)
                 # If SQL query doesn't exist: print an error.
-                if os.path.exists(self.dict_settings[key]) is False:
+                if os.path.exists(self.dict_settings[key]) is False\
+                        and key != 'path_html_task_3_0':
                     self.report += f'\nError - {key} hasn\'t been located:\n\t{self.dict_settings[key]}'
 
             # Check: SQLite DB might exist

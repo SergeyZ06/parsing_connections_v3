@@ -27,6 +27,11 @@ class ConnectionsLoad:
         self.report = ''
 
     def start(self):
+        # Check: if month is first, consider the previous SQLite DB.
+        if int(datetime.datetime.now().strftime("%m")) == 1:
+            self.path_db = self.path_db.replace(datetime.datetime.now().strftime("%Y"),
+                                                str(int(datetime.datetime.now().strftime("%Y")) - 1))
+
         # Check: tables "connections" and "clients" should exist.
         db_table_exists_result, db_table_exists_report = db_table_exists(self.path_db, self.path_sql_query_0_0, 2)
         self.report += db_table_exists_report
@@ -78,53 +83,53 @@ class ConnectionsLoad:
                         # If data has been received:
                         if sqlite_list_clients:
                             # get data about load.
-                            dict_load = {'count_client': str(sqlite_list_clients[0][0]),
-                                         'timestamp_first': str(sqlite_list_clients[0][1]),
-                                         'timestamp_last': str(sqlite_list_clients[0][2]),
-                                         'avg_Throughput_KB_s': str(sqlite_list_clients[0][3]),
-                                         'max_Throughput_KB_s': str(sqlite_list_clients[0][4])}
+                            for i_load in range(len(sqlite_list_clients)):
+                                dict_load = {'count_client': str(sqlite_list_clients[i_load][0]),
+                                             'timestamp_first': str(sqlite_list_clients[i_load][1]),
+                                             'timestamp_last': str(sqlite_list_clients[i_load][2]),
+                                             'avg_Throughput_KB_s': str(sqlite_list_clients[i_load][3]),
+                                             'max_Throughput_KB_s': str(sqlite_list_clients[i_load][4])}
 
-                            # Check: load should present in the table 'loads'.
-                            str_sql_query_2_3 = get_query(self.path_sql_query_2_3)
-                            str_sql_query_2_3 = str_sql_query_2_3.replace('$VARIABLE_COUNT_CLIENTS$',
-                                                                          dict_load['count_client'])
-                            str_sql_query_2_3 = str_sql_query_2_3.replace('$VARIABLE_TIMESTAMP_FIRST$',
-                                                                          dict_load['timestamp_first'])
-                            str_sql_query_2_3 = str_sql_query_2_3.replace('$VARIABLE_TIMESTAMP_LAST$',
-                                                                          dict_load['timestamp_last'])
-                            str_sql_query_2_3 = str_sql_query_2_3.replace('$VARIABLE_AVG_THROUGHPUT_KB_S$',
-                                                                          dict_load['avg_Throughput_KB_s'])
-                            str_sql_query_2_3 = str_sql_query_2_3.replace('$VARIABLE_MAX_THROUGHPUT_KB_S$',
-                                                                          dict_load['max_Throughput_KB_s'])
-                            str_query = str_sql_query_2_3
-                            id_load = sqlite_connection.execute(str_query).fetchone()
-
-                            # If not: insert new load into the table 'loads' and get id_load.
-                            if id_load is None:
-                                str_dml_query_2_0 = get_query(self.path_dml_query_2_0)
-                                str_dml_query_2_0 = str_dml_query_2_0.replace('$VARIABLE_COUNT_CLIENTS$',
+                                # Check: load should present in the table 'loads'.
+                                str_sql_query_2_3 = get_query(self.path_sql_query_2_3)
+                                str_sql_query_2_3 = str_sql_query_2_3.replace('$VARIABLE_COUNT_CLIENTS$',
                                                                               dict_load['count_client'])
-                                str_dml_query_2_0 = str_dml_query_2_0.replace('$VARIABLE_TIMESTAMP_FIRST$',
+                                str_sql_query_2_3 = str_sql_query_2_3.replace('$VARIABLE_TIMESTAMP_FIRST$',
                                                                               dict_load['timestamp_first'])
-                                str_dml_query_2_0 = str_dml_query_2_0.replace('$VARIABLE_TIMESTAMP_LAST$',
+                                str_sql_query_2_3 = str_sql_query_2_3.replace('$VARIABLE_TIMESTAMP_LAST$',
                                                                               dict_load['timestamp_last'])
-                                str_dml_query_2_0 = str_dml_query_2_0.replace('$VARIABLE_AVG_THROUGHPUT_KB_S$',
+                                str_sql_query_2_3 = str_sql_query_2_3.replace('$VARIABLE_AVG_THROUGHPUT_KB_S$',
                                                                               dict_load['avg_Throughput_KB_s'])
-                                str_dml_query_2_0 = str_dml_query_2_0.replace('$VARIABLE_MAX_THROUGHPUT_KB_S$',
+                                str_sql_query_2_3 = str_sql_query_2_3.replace('$VARIABLE_MAX_THROUGHPUT_KB_S$',
                                                                               dict_load['max_Throughput_KB_s'])
-                                str_query = str_dml_query_2_0
-                                sqlite_connection.execute(str_query)
+                                str_query = str_sql_query_2_3
+                                id_load = sqlite_connection.execute(str_query).fetchone()
+
+                                # If not: insert new load into the table 'loads' and get id_load.
+                                if id_load is None:
+                                    str_dml_query_2_0 = get_query(self.path_dml_query_2_0)
+                                    str_dml_query_2_0 = str_dml_query_2_0.replace('$VARIABLE_COUNT_CLIENTS$',
+                                                                                  dict_load['count_client'])
+                                    str_dml_query_2_0 = str_dml_query_2_0.replace('$VARIABLE_TIMESTAMP_FIRST$',
+                                                                                  dict_load['timestamp_first'])
+                                    str_dml_query_2_0 = str_dml_query_2_0.replace('$VARIABLE_TIMESTAMP_LAST$',
+                                                                                  dict_load['timestamp_last'])
+                                    str_dml_query_2_0 = str_dml_query_2_0.replace('$VARIABLE_AVG_THROUGHPUT_KB_S$',
+                                                                                  dict_load['avg_Throughput_KB_s'])
+                                    str_dml_query_2_0 = str_dml_query_2_0.replace('$VARIABLE_MAX_THROUGHPUT_KB_S$',
+                                                                                  dict_load['max_Throughput_KB_s'])
+                                    str_query = str_dml_query_2_0
+                                    sqlite_connection.execute(str_query)
 
                                 str_query = str_sql_query_2_3
                                 id_load = sqlite_connection.execute(str_query).fetchone()[0]
 
-                            # For each discovered client:
-                            for row_client in sqlite_list_clients:
+                                # For each discovered client:
                                 # get data about client.
                                 dict_client = {'id_load': str(id_load),
-                                               'id_client': str(row_client[5]),
-                                               'avg_client_Throughput_KB_s': str(row_client[6]),
-                                               'max_client_Throughput_KB_s': str(row_client[7])}
+                                               'id_client': str(sqlite_list_clients[i_load][5]),
+                                               'avg_client_Throughput_KB_s': str(sqlite_list_clients[i_load][6]),
+                                               'max_client_Throughput_KB_s': str(sqlite_list_clients[i_load][7])}
 
                                 # Check: client should present in the table 'clients_in_loads'.
                                 str_sql_query_2_4 = get_query(self.path_sql_query_2_4)
